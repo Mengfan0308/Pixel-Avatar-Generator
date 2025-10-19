@@ -442,16 +442,144 @@ cfg = Config()
 
 @ui.page('/')
 def index_page() -> None:
-    ui.label('mengfan0308 的文件').classes('text-2xl font-bold mt-4')
+    # --- Pixel/Mecha Theme (compact, global) ---
+    ui.add_head_html('''
+        <style>
+            /* Color tokens */
+                    :root {
+                        --bg-0: #0b0f14;   /* deep space */
+                        --bg-1: #131a22;   /* panel */
+                        --line: #263241;   /* grid lines */
+                        --accent: #7df9ff; /* neon cyan */
+                        --accent-2: #ff8bd1; /* neon pink */
+                        --text-1: #E6EEF8; /* high-contrast body text */
+                        --text-2: #BFD0E4; /* secondary text (still above 4.5:1 on dark) */
+                    }
+
+            /* App background with subtle pixel grid + vignette */
+                    .app-bg {
+                background:
+                    radial-gradient(1200px 600px at 80% -10%, rgba(125,249,255,0.08), transparent 60%),
+                    radial-gradient(900px 500px at 10% 110%, rgba(255,139,209,0.06), transparent 60%),
+                    linear-gradient(180deg, rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
+                    repeating-linear-gradient(0deg, var(--bg-0) 0 31px, var(--line) 31px 32px);
+                color: var(--text-1);
+            }
+                    .pixel-theme, .pixel-theme * { color: var(--text-1); }
+
+            /* Panels with a mechanical, beveled feel */
+                    .mech-panel {
+                        background: linear-gradient(180deg, rgba(38,50,65,0.62), rgba(19,26,34,0.62));
+                        border: 2px solid rgba(150, 190, 230, 0.35);
+                box-shadow:
+                    inset 0 1px 0 rgba(255,255,255,0.04),
+                    inset 0 -1px 0 rgba(0,0,0,0.35),
+                    0 8px 22px rgba(0,0,0,0.35);
+                backdrop-filter: blur(6px);
+            }
+
+            /* Pixel-style frame for the preview */
+            .mech-frame {
+                outline: 2px solid rgba(125,249,255,0.5);
+                box-shadow:
+                    0 0 0 2px rgba(38,50,65,0.9),
+                    0 0 18px rgba(125,249,255,0.3),
+                    inset 0 0 0 2px rgba(19,26,34,0.8);
+            }
+
+            .pixel-preview img, .pixel-preview {
+                image-rendering: pixelated;
+                image-rendering: crisp-edges;
+                background: repeating-linear-gradient(45deg, #0f141b 0 6px, #0b0f14 6px 12px);
+            }
+
+            /* Layout grid utilities */
+            .layout-grid { --unit: 8px; }
+            .grid-gap { gap: calc(var(--unit) * 2); }          /* 16px */
+            .pad { padding: calc(var(--unit) * 2); }           /* 16px */
+            .w-left { width: 384px; min-width: 384px; max-width: 384px; }
+            .w-preview { width: 288px; min-width: 288px; max-width: 288px; }
+            .sticky-col { position: sticky; top: calc(var(--unit) * 2); }
+            .section { margin-top: calc(var(--unit) * 2); }
+            .field-title { display: flex; align-items: center; justify-content: space-between; min-height: 24px; }
+            .field-value { font-variant-numeric: tabular-nums; }
+
+            /* Typography */
+            .app-title { letter-spacing: 1px; text-transform: uppercase; color: var(--text-1); }
+            .subtle { color: var(--text-2) !important; }
+            .label-quiet { color: var(--text-1) !important; opacity: 0.92; }
+
+            /* Buttons: enforce 20% cyan bg everywhere and neon border */
+            .pixel-theme .q-btn {
+                border: 1.5px solid rgba(125,249,255,0.55);
+                background-color: rgba(125, 249, 255, 0.2) !important; /* 20% cyan */
+                background-image: none !important;
+                box-shadow: 0 0 0 2px rgba(38,50,65,0.95), 0 4px 14px rgba(125,249,255,0.22);
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+            }
+            /* Ensure background applies to Quasar's wrapper element (actual bg/border host) */
+            .pixel-theme .q-btn .q-btn__wrapper,
+            .pixel-theme .q-btn .q-btn__wrapper::before,
+            .pixel-theme .q-btn .q-btn__wrapper::after {
+                background-color: rgba(125, 249, 255, 0.2) !important;
+                background-image: none !important;
+                border-color: rgba(125, 249, 255, 0.55) !important;
+            }
+                            .pixel-theme .q-btn .q-btn__content { color: var(--text-1) !important; }
+                            /* Stronger override for variants that would otherwise fill with primary color */
+            .pixel-theme .q-btn.q-btn--standard,
+            .pixel-theme .q-btn.q-btn--unelevated,
+            .pixel-theme .q-btn.q-btn--rectangle,
+            .pixel-theme .q-btn.q-btn--flat,
+            .pixel-theme .q-btn.q-btn--push {
+                background-color: rgba(125, 249, 255, 0.2) !important;
+                background-image: none !important;
+                color: var(--text-1) !important;
+            }
+            .pixel-theme .q-btn.q-btn--standard .q-btn__wrapper,
+            .pixel-theme .q-btn.q-btn--unelevated .q-btn__wrapper,
+            .pixel-theme .q-btn.q-btn--rectangle .q-btn__wrapper,
+            .pixel-theme .q-btn.q-btn--flat .q-btn__wrapper,
+            .pixel-theme .q-btn.q-btn--push .q-btn__wrapper {
+                background-color: rgba(125, 249, 255, 0.2) !important;
+                background-image: none !important;
+                border-color: rgba(125, 249, 255, 0.55) !important;
+            }
+                    .pixel-theme .q-btn:hover { box-shadow: 0 0 0 2px rgba(38,50,65,0.95), 0 8px 24px rgba(125,249,255,0.34); }
+                    .pixel-theme .q-btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+            /* Sliders: cyan track, pink filled */
+                    .pixel-theme .q-slider__track-container { height: 4px; }
+                    .pixel-theme .q-slider__track { background: #2B3745; }
+                    .pixel-theme .q-slider__track--h { background-image: linear-gradient(90deg, var(--accent-2), var(--accent)); }
+                    .pixel-theme .q-slider__thumb {
+                        border: 2px solid var(--accent);
+                        box-shadow: 0 0 0 2px rgba(38,50,65,0.95), 0 0 10px rgba(125,249,255,0.35);
+                        width: 16px; height: 16px;
+                    }
+                    .pixel-theme .q-slider__thumb:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+                    /* Quasar field/select text contrast */
+                    .pixel-theme .q-field, .pixel-theme .q-item, .pixel-theme .q-field__label, .pixel-theme .q-field__native,
+                    .pixel-theme .q-select__content, .pixel-theme .q-item__label { color: var(--text-1) !important; }
+                    .pixel-theme .q-field__control { border-color: rgba(200,220,240,0.4); }
+                    .pixel-theme .q-field--focused .q-field__control { box-shadow: 0 0 0 3px rgba(255,255,255,0.35) inset; }
+            /* Labels (single definition) */
+            /* remove duplicate low-contrast override */
+        </style>
+        ''')
+
+    ui.label('mengfan0308 的文件').classes('app-title text-2xl font-bold mt-4')
     random_used = False
-    with ui.row().classes('items-start w-full gap-8 p-4 flex-nowrap'):
+    with ui.row().classes('pixel-theme app-bg layout-grid grid-gap pad items-start w-full flex-nowrap min-h-screen'):
         # Left: scrollable controls panel (fixed width)
-        with ui.scroll_area().classes('min-w-[320px] w-[380px] max-w-[420px] h-[78vh] overflow-y-auto shrink-0'):
-            with ui.column().classes('gap-2 pr-2'):
+        with ui.scroll_area().classes('w-left h-[80vh] overflow-y-auto shrink-0'):
+            with ui.column().classes('mech-panel rounded-md pad grid-gap'):
                 def labeled_slider(title: str, minimum: float, maximum: float, value: float, step: float = 1.0):
-                    with ui.row().classes('w-full items-center justify-between'):
-                        ui.label(title).classes('text-sm text-gray-500')
-                        val_label = ui.label(f'{int(value)}').classes('text-xs text-gray-600')
+                    with ui.row().classes('w-full field-title'):
+                        ui.label(title).classes('text-sm subtle')
+                        val_label = ui.label(f'{int(value)}').classes('text-xs subtle field-value')
                     s = ui.slider(min=minimum, max=maximum, value=value, step=step).props('label-always')
                     def _upd(_=None):
                         val_label.text = f'{int(s.value)}'
@@ -460,12 +588,12 @@ def index_page() -> None:
                     return s, val_label
 
                 # Top quick actions
-                with ui.row().classes('w-full items-center justify-between mt-1'):
+                with ui.row().classes('w-full items-center justify-between'):
                     random_btn = ui.button('Randomize')
                     symmetry = ui.switch('Symmetry', value=cfg.symmetry)
 
                 # Head controls
-                ui.label('Head Shape').classes('text-sm text-gray-500 mt-2')
+                ui.label('Head Shape').classes('label-quiet section')
                 head_template = ui.select({
                     'round': '圆',
                     'ellipse': '椭圆',
@@ -484,14 +612,14 @@ def index_page() -> None:
                 eye, _ = labeled_slider('Eye', 0, 100, cfg.eye, 1)
 
                 # Mouth: curve + width + thickness
-                ui.label('Mouth').classes('text-sm text-gray-500 mt-2')
+                ui.label('Mouth').classes('label-quiet section')
                 mouth_curve, _ = labeled_slider('Curve', 0, 100, cfg.mouth_curve, 1)
                 mouth_width, _ = labeled_slider('Width', 0, 100, cfg.mouth_width, 1)
-                ui.label('Thickness').classes('text-xs text-gray-500')
+                ui.label('Thickness').classes('text-xs subtle')
                 mouth_thickness = ui.slider(min=1, max=3, value=cfg.mouth_thickness, step=1)
 
                 # Accessories with conditional sliders
-                ui.label('Accessories').classes('text-sm text-gray-500 mt-2')
+                ui.label('Accessories').classes('label-quiet section')
                 with ui.row().classes('gap-4'):
                     acc_glasses = ui.switch('Glasses', value=cfg.acc_glasses)
                     acc_beard = ui.switch('Beard', value=cfg.acc_beard)
@@ -507,10 +635,10 @@ def index_page() -> None:
 
                 # Palette + Presets group
                 ui.separator()
-                ui.label('Palette & Presets').classes('text-sm text-gray-500')
+                ui.label('Palette & Presets').classes('label-quiet section')
                 palette = ui.slider(min=0, max=len(Palettes)-1, value=cfg.palette_id, step=1).props('label-always')
                 with ui.row().classes('gap-2 items-center'):
-                    ui.label('Preview:').classes('text-xs text-gray-600')
+                    ui.label('Preview:').classes('text-xs subtle')
                     swatch_boxes = [ui.element('div').classes('w-6 h-6 rounded border') for _ in range(4)]
                 with ui.row().classes('gap-2'):
                     preset_cool = ui.button('冷色')
@@ -519,10 +647,10 @@ def index_page() -> None:
                     preset_neon = ui.button('霓虹')
 
         # Right: fixed preview panel (non-shrinking, fixed width)
-        with ui.column().classes('gap-2 self-start shrink-0 w-[256px]'):
-            with ui.element('div').classes('sticky top-4'):
-                preview = ui.image().classes('w-[256px] h-[256px] border rounded shadow')
-                ui.label('Export Size').classes('text-sm text-gray-500 mt-2')
+        with ui.column().classes('self-start shrink-0 w-preview mech-panel rounded-md pad grid-gap'):
+            with ui.element('div').classes('sticky-col'):
+                preview = ui.image().classes('pixel-preview mech-frame w-[256px] h-[256px] rounded')
+                ui.label('Export Size').classes('label-quiet section')
                 export_size = ui.select({256: '256 px', 512: '512 px'}, value=cfg.export_px)
                 download_btn = ui.button('Download PNG').classes('mt-3')
 
