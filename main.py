@@ -442,7 +442,7 @@ cfg = Config()
 
 @ui.page('/')
 def index_page() -> None:
-    ui.label('Pixel Persona (MVP)').classes('text-2xl font-bold mt-4')
+    ui.label('mengfan0308 的文件').classes('text-2xl font-bold mt-4')
     random_used = False
     with ui.row().classes('items-start w-full gap-8 p-4 flex-nowrap'):
         # Left: scrollable controls panel (fixed width)
@@ -662,4 +662,4 @@ def index_page() -> None:
 if __name__ in {"__main__", "__mp_main__"}:
     # Run as a native desktop window (no external browser tab)
     # Requires 'pywebview' installed.
-    ui.run(title='Pixel Persona', reload=False, native=True)
+    ui.run(title='mengfan0308 的文件', reload=False, native=True)
